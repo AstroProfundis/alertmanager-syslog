@@ -1,0 +1,15 @@
+---
+# Add labels to be included in the message send to syslog
+# Note that "alertname", "level", "staus" and "time" are always included
+labels:
+  - env
+  - instance
+
+# Add annotations to be included in the message send to syslog
+# NOTE: If an annotation has the same name as a label, it will overwrite the value of that label
+# e.g., in this configuration, only "instance" from annotations will be add to the message
+annotations:
+  - value
+  - summary
+  - description
+  - instance

@@ -29,12 +29,12 @@ func (s *Server) HandleAlert(w http.ResponseWriter, req *http.Request) {
 }
 
 func (s *Server) sendAlert(data template.Data) error {
-	labels := strings.Join(data.CommonLabels.Values(), "|")
-	for _, alert := range data.Alerts.Firing() {
+	commLabels := strings.Join(data.CommonLabels.Values(), "|")
+	for _, alert := range data.Alerts {
 		severity := strings.ToUpper(getValue(alert.Labels, "severity"))
 		switch severity {
 		case "CRITICAL", "WARNING":
-			msg, err := sysLogMsg(alert, labels)
+			msg, err := s.sysLogMsg(alert, commLabels)
 			if err != nil {
 				return err
 			}

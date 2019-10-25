@@ -11,7 +11,7 @@ LDFLAGS := -w -s
 default: server
 
 server: check
-	$(GOBUILD) -ldflags '$(LDFLAGS)' -o bin/alertmanager-syslog cmd/server.go
+	$(GOBUILD) -ldflags '$(LDFLAGS)' -o bin/alertmanager-syslog cmd/*.go
 
 lint:
 	@golint ./...
