@@ -4,38 +4,59 @@ import (
 	"flag"
 	"fmt"
 	"net/http"
-	"time"
+	"os"
+	"os/signal"
+	"sync"
+	"syscall"
 
 	webhook "github.com/AstroProfundis/alertmanager-syslog/pkg"
 )
 
 var (
-	listen  string
-	syslog  string
-	timeout int
+	listenAddr string
+	syslogAddr string
+	network    string
+	timeout    int
 )
 
-func initArgs() {
-	flag.StringVar(&listen, "listen", "0.0.0.0:10514", "Address and port of the webhook to receive messages from AlertManager.")
-	flag.StringVar(&syslog, "syslog", "127.0.0.1:514", "Address and port of the Syslog server to send messages.")
+func init() {
+	flag.StringVar(&listenAddr, "listen", "0.0.0.0:10514", "Address and port of the webhook to receive messages from AlertManager.")
+	flag.StringVar(&syslogAddr, "syslog", "127.0.0.1:514", "Address and port of the Syslog server to send messages.")
+	flag.StringVar(&network, "network", "", "(tcp or udp): send messages to the syslog server using UDP or TCP. If not set, connect to the local syslog server.")
 	flag.IntVar(&timeout, "timeout", 10, "Timeout when serving and sending requests, in seconds.")
 	flag.Parse()
 }
 
-func init() {
-	initArgs()
-}
-
 func main() {
-	timeoutSec := time.Second * time.Duration(timeout)
-
-	http.HandleFunc("/alerts", webhook.HandleAlert)
-
-	s := &http.Server{
-		Addr:         listen,
-		ReadTimeout:  timeoutSec,
-		WriteTimeout: timeoutSec,
+	s, err := webhook.New(&webhook.ServerCfg{
+		ListenAddr: listenAddr,
+		SyslogAddr: syslogAddr,
+		Network:    network,
+		Timeout:    timeout,
+	})
+	if err != nil {
+		fmt.Printf("Failed to start server: %v", err)
+		os.Exit(1)
 	}
-	fmt.Printf("Listening on %s, timeout is %v\n", listen, timeoutSec)
-	s.ListenAndServe()
+	defer s.Close()
+
+	http.HandleFunc("/alerts", s.HandleAlert)
+
+	go s.ListenAndServe()
+
+	sc := make(chan os.Signal, 1)
+	signal.Notify(sc,
+		syscall.SIGHUP,
+		syscall.SIGINT,
+		syscall.SIGTERM,
+		syscall.SIGQUIT)
+
+	var wg sync.WaitGroup
+	wg.Add(1)
+	go func() {
+		sig := <-sc
+		fmt.Printf("Got signal [%v], exiting...\n", sig)
+		wg.Done()
+	}()
+	wg.Wait()
 }

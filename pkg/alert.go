@@ -9,13 +9,8 @@ import (
 	"github.com/prometheus/alertmanager/template"
 )
 
-type errResp struct {
-	Status  string
-	Message string
-}
-
 // HandleAlert handles webhook for AlertManager
-func HandleAlert(w http.ResponseWriter, req *http.Request) {
+func (s *Server) HandleAlert(w http.ResponseWriter, req *http.Request) {
 	defer req.Body.Close()
 
 	data := template.Data{}
@@ -23,17 +18,34 @@ func HandleAlert(w http.ResponseWriter, req *http.Request) {
 		http.Error(w, fmt.Sprintf("Error parsing request: %s", err), http.StatusBadRequest)
 		return
 	}
-	fmt.Printf("%v\n", data)
 
-	for _, alert := range data.Alerts.Firing() {
-		severity := alert.Labels["severity"]
-		switch strings.ToUpper(severity) {
-		case "CRITICAL", "WARNING":
-			sendAlert(alert)
+	go func() {
+		if err := s.sendAlert(data); err != nil {
+			http.Error(w,
+				fmt.Sprintf("Error sending message to syslog server: %v", err),
+				http.StatusInternalServerError)
 		}
-	}
+	}()
 }
 
-func sendAlert(alert template.Alert) {
-	fmt.Printf("%v\n", alert)
+func (s *Server) sendAlert(data template.Data) error {
+	labels := strings.Join(data.CommonLabels.Values(), "|")
+	for _, alert := range data.Alerts.Firing() {
+		severity := strings.ToUpper(getValue(alert.Labels, "severity"))
+		switch severity {
+		case "CRITICAL", "WARNING":
+			msg, err := sysLogMsg(alert, labels)
+			if err != nil {
+				return err
+			}
+
+			_, err = fmt.Fprintf(s.sysLog, "%s", msg)
+			if err != nil {
+				return err
+			}
+
+			fmt.Printf("[%s] %s\n", getValue(alert.Labels, "severity"), msg)
+		}
+	}
+	return nil
 }
