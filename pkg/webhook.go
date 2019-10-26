@@ -14,6 +14,7 @@ type ServerCfg struct {
 	SyslogAddr  string
 	Network     string
 	Timeout     int
+	Mode        string
 	Labels      []string
 	Annotations []string
 }
@@ -23,6 +24,7 @@ type Server struct {
 	httpServer *http.Server
 	sysLog     *syslog.Writer
 
+	mode        string
 	labels      []string
 	annotations []string
 }
@@ -47,6 +49,7 @@ func New(cfg *ServerCfg) (*Server, error) {
 			WriteTimeout: timeoutSec,
 		},
 		sysLog:      syslogWriter,
+		mode:        cfg.Mode,
 		labels:      cfg.Labels,
 		annotations: cfg.Annotations,
 	}, nil

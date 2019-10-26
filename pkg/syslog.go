@@ -1,7 +1,9 @@
 package webhook
 
 import (
+	"bytes"
 	"encoding/json"
+	"fmt"
 
 	"github.com/prometheus/alertmanager/template"
 )
@@ -41,6 +43,11 @@ func (s *Server) sysLogMsg(alert template.Alert, commLabels string) ([]byte, err
 	// add all common labels
 	msg["commonLabels"] = commLabels
 
+	// convert to plain text format
+	if s.mode == "plain" {
+		return formatPlain(msg), nil
+	}
+
 	return json.Marshal(msg)
 }
 
@@ -49,4 +56,12 @@ func getValue(kv template.KV, key string) string {
 		return val
 	}
 	return ""
+}
+
+func formatPlain(kv map[string]string) []byte {
+	b := new(bytes.Buffer)
+	for k, v := range kv {
+		fmt.Fprintf(b, "%s=%v ", k, v)
+	}
+	return b.Bytes()
 }

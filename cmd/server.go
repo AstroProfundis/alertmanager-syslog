@@ -18,6 +18,7 @@ var (
 	syslogAddr string
 	network    string
 	timeout    int
+	mode       string
 )
 
 func init() {
@@ -26,6 +27,7 @@ func init() {
 	flag.StringVar(&syslogAddr, "syslog", "127.0.0.1:514", "Address and port of the Syslog server to send messages.")
 	flag.StringVar(&network, "network", "", "(tcp or udp): send messages to the syslog server using UDP or TCP. If not set, connect to the local syslog server.")
 	flag.IntVar(&timeout, "timeout", 10, "Timeout when serving and sending requests, in seconds.")
+	flag.StringVar(&mode, "mode", "json", "Use plain text or JSON to format messages.")
 	flag.Parse()
 }
 
@@ -41,6 +43,7 @@ func main() {
 		SyslogAddr:  syslogAddr,
 		Network:     network,
 		Timeout:     timeout,
+		Mode:        mode,
 		Labels:      cfg.Labels,
 		Annotations: cfg.Annotations,
 	})
