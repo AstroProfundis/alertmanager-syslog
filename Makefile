@@ -8,9 +8,11 @@ GOBUILD := $(GO) build
 
 LDFLAGS := -w -s
 
-default: server
+default: all
 
-server: check
+all: check server
+
+server:
 	$(GOBUILD) -ldflags '$(LDFLAGS)' -o bin/alertmanager-syslog cmd/*.go
 
 lint:
