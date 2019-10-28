@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"sort"
+	"strings"
 
 	"github.com/prometheus/alertmanager/template"
 )
@@ -44,12 +45,16 @@ func (s *Server) sysLogMsg(alert template.Alert, commLabels string) ([]byte, err
 	// add all common labels
 	msg["commonLabels"] = commLabels
 
+	switch strings.ToLower(s.mode) {
 	// convert to plain text format
-	if s.mode == "plain" {
+	case "plain", "text":
 		return formatPlain(msg), nil
+	// default format is JSON
+	case "json":
+		fallthrough
+	default:
+		return json.Marshal(msg)
 	}
-
-	return json.Marshal(msg)
 }
 
 func getValue(kv template.KV, key string) string {
