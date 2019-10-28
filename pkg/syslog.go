@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"sort"
 
 	"github.com/prometheus/alertmanager/template"
 )
@@ -59,9 +60,17 @@ func getValue(kv template.KV, key string) string {
 }
 
 func formatPlain(kv map[string]string) []byte {
+	// sort the kv pairs with keys to make the output constant, note that
+	// in JSON ourput format, the keys are automatically sorted
+	var keys []string
+	for k := range kv {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+
 	b := new(bytes.Buffer)
-	for k, v := range kv {
-		fmt.Fprintf(b, "%s=%v ", k, v)
+	for _, k := range keys {
+		fmt.Fprintf(b, "%s=%v ", k, kv[k])
 	}
 	return b.Bytes()
 }
