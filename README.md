@@ -66,7 +66,6 @@ Oct 28 15:31:07 alert-forwarder.testdomain alertmanager-syslog[6876]: status=fir
 Just run `make`, and find the server binary in `bin/`.
 
 ## TODOs
- - Support plain text message along side with current JSON format
  - Add an endpoint for Prometheus metrics
  - Add tests
 
