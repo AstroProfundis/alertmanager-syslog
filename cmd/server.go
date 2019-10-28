@@ -10,6 +10,9 @@ import (
 
 	webhook "github.com/AstroProfundis/alertmanager-syslog/pkg"
 	"github.com/golang/glog"
+	"github.com/heptiolabs/healthcheck"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 var (
@@ -57,6 +60,11 @@ func main() {
 	defer s.Close()
 
 	http.HandleFunc("/alerts", s.HandleAlert)
+	http.Handle("/metrics", promhttp.Handler())
+
+	hc := healthcheck.NewMetricsHandler(prometheus.DefaultRegisterer, "alertmanager-syslog")
+	http.HandleFunc("/live", hc.LiveEndpoint)
+	http.HandleFunc("/ready", hc.ReadyEndpoint)
 
 	go s.ListenAndServe()
 
