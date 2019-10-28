@@ -2,10 +2,10 @@ package webhook
 
 import (
 	"context"
-	"log/syslog"
 	"net/http"
 	"time"
 
+	syslog "github.com/RackSec/srslog"
 	"github.com/golang/glog"
 )
 
@@ -16,6 +16,7 @@ type ServerCfg struct {
 	Network     string
 	Timeout     int
 	Mode        string
+	Hostname    string
 	Labels      []string
 	Annotations []string
 }
@@ -26,6 +27,7 @@ type Server struct {
 	sysLog     *syslog.Writer
 
 	mode        string
+	hostname    string
 	labels      []string
 	annotations []string
 }
@@ -40,6 +42,10 @@ func New(cfg *ServerCfg) (*Server, error) {
 		"alertmanager-syslog")
 	if err != nil {
 		return nil, err
+	}
+	syslogWriter.SetFormatter(syslog.RFC3164Formatter)
+	if cfg.Hostname != "" {
+		syslogWriter.SetHostname(cfg.Hostname)
 	}
 
 	glog.Infof("Listening on %s, timeout is %v\n", cfg.ListenAddr, timeoutSec)
