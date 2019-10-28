@@ -2,10 +2,11 @@ package webhook
 
 import (
 	"context"
-	"fmt"
 	"log/syslog"
 	"net/http"
 	"time"
+
+	"github.com/golang/glog"
 )
 
 // ServerCfg is the config options used by Server
@@ -41,7 +42,7 @@ func New(cfg *ServerCfg) (*Server, error) {
 		return nil, err
 	}
 
-	fmt.Printf("Listening on %s, timeout is %v\n", cfg.ListenAddr, timeoutSec)
+	glog.Infof("Listening on %s, timeout is %v\n", cfg.ListenAddr, timeoutSec)
 	return &Server{
 		httpServer: &http.Server{
 			Addr:         cfg.ListenAddr,
@@ -68,12 +69,12 @@ func (s *Server) Close() {
 	}()
 
 	if err := s.httpServer.Shutdown(ctx); err != nil {
-		fmt.Println("Failed to shutdown HTTP server, closing anyway.")
+		glog.Warningf("Failed to shutdown HTTP server, closing anyway.")
 		s.httpServer.Close() // ignore the error
 	} else {
-		fmt.Println("Finish shuting down HTTP server.")
+		glog.Infof("Finish shuting down HTTP server.")
 	}
 
 	s.sysLog.Close() // ignore the error
-	fmt.Println("Closed connection to Syslog server.")
+	glog.Infof("Closed connection to Syslog server.")
 }

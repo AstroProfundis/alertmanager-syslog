@@ -64,7 +64,6 @@ Oct 28 15:31:07 luna.zhoal.pw alertmanager-syslog[6876]: status=firing time=2019
 Just run `make`, and find the server binary in `bin/`.
 
 ## TODOs
- - Use a logger instead of `fmt`
  - Support plain text message along side with current JSON format
  - Add an endpoint for Prometheus metrics
  - Add tests

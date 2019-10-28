@@ -2,7 +2,6 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"net/http"
 	"os"
 	"os/signal"
@@ -10,6 +9,7 @@ import (
 	"syscall"
 
 	webhook "github.com/AstroProfundis/alertmanager-syslog/pkg"
+	"github.com/golang/glog"
 )
 
 var (
@@ -34,7 +34,7 @@ func init() {
 func main() {
 	cfg, err := loadConfig(configFile)
 	if err != nil {
-		fmt.Printf("Failed to load config file: %v", err)
+		glog.Fatalf("Failed to load config file: %v", err)
 		os.Exit(1)
 	}
 
@@ -48,7 +48,7 @@ func main() {
 		Annotations: cfg.Annotations,
 	})
 	if err != nil {
-		fmt.Printf("Failed to start server: %v", err)
+		glog.Fatalf("Failed to start server: %v", err)
 		os.Exit(1)
 	}
 	defer s.Close()
@@ -68,8 +68,9 @@ func main() {
 	wg.Add(1)
 	go func() {
 		sig := <-sc
-		fmt.Printf("Got signal [%v], exiting...\n", sig)
+		glog.Infof("Got signal [%v], exiting...\n", sig)
 		wg.Done()
 	}()
 	wg.Wait()
+	glog.Flush()
 }

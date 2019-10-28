@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/golang/glog"
 	"github.com/prometheus/alertmanager/template"
 )
 
@@ -44,7 +45,7 @@ func (s *Server) sendAlert(data template.Data) error {
 				return err
 			}
 
-			fmt.Printf("[%s] %s\n", getValue(alert.Labels, "severity"), msg)
+			glog.V(3).Infof("Send alert: [%s] %s\n", getValue(alert.Labels, "severity"), msg)
 		}
 	}
 	return nil
