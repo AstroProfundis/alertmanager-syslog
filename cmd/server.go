@@ -22,7 +22,6 @@ var (
 	network    string
 	timeout    int
 	host       string
-	mode       string
 )
 
 func init() {
@@ -32,26 +31,23 @@ func init() {
 	flag.StringVar(&network, "network", "", "(tcp or udp): send messages to the syslog server using UDP or TCP. If not set, connect to the local syslog server.")
 	flag.IntVar(&timeout, "timeout", 10, "Timeout when serving and sending requests, in seconds.")
 	flag.StringVar(&host, "host", "", "Hostname or IP address of the log source, if not set, default local hostname will be used.")
-	flag.StringVar(&mode, "mode", "json", "Use plain text or JSON to format messages.")
 	flag.Parse()
 }
 
 func main() {
-	cfg, err := loadConfig(configFile)
+	cfg, err := webhook.LoadConfig(configFile)
 	if err != nil {
 		glog.Fatalf("Failed to load config file: %v", err)
 		os.Exit(1)
 	}
 
 	s, err := webhook.New(&webhook.ServerCfg{
-		ListenAddr:  listenAddr,
-		SyslogAddr:  syslogAddr,
-		Network:     network,
-		Timeout:     timeout,
-		Mode:        mode,
-		Hostname:    host,
-		Labels:      cfg.Labels,
-		Annotations: cfg.Annotations,
+		ListenAddr: listenAddr,
+		SyslogAddr: syslogAddr,
+		Network:    network,
+		Timeout:    timeout,
+		Hostname:   host,
+		Config:     cfg,
 	})
 	if err != nil {
 		glog.Fatalf("Failed to start server: %v", err)

@@ -1,4 +1,9 @@
 ---
+# Control the output format, use 'plain` or 'text' for plain text output, use 'json' for JSON format
+# output, and use 'custom' for user defined format
+# This only affect the content in MSG part of a syslog message. The default is 'json'.
+mode: custom
+
 # Add labels to be included in the message send to syslog
 # Note that "alertname", "severity", "staus" and "time" are always included
 labels:
@@ -13,3 +18,39 @@ annotations:
   - summary
   - description
   - instance
+
+# Define a customized format to build alerts to syslog messages
+# If custom format is enabled, both 'labels' and 'annotation' are ignored.
+custom:
+  # delimiter is the string used to separate different sections, it can be of one or more characters
+  # long, but keep in mind to choose characters that won't appear in alert itself.
+  delimiter: "||"
+
+  # sections are the custom defined values in the message, they are ordered the same as in config file
+  # a section has these items:
+  #   - type: the type of this section, could be either "const", "label" or "annontation", where:
+  #         * const is a constitute value
+  #         * label is a value from one of the alert's labels
+  #         * annontation is a value from one of the alert's annotations
+  #   - value: the constitute value to be used, it is ignored if the type is not "const", if you want
+  #         keep the section with empty value, use " " (whitespace) for the value.
+  #   - key: name of the key for label or annotation, it is ignored if the type is "const"
+  #   - time: the time of alert occurrence, in UNIX timestamp format
+  sections:
+    - type: const
+      value: "AlertManager"
+    - type: const
+      value: " "
+    - type: label
+      key: "instance"
+    - type: label
+      key: "alertname"
+    - type: label
+      key: "service"
+    - type: annotation
+      key: "instance"
+    - type: label
+      key: "severity"
+    - type: annotation
+      key: "summary"
+    - type: time

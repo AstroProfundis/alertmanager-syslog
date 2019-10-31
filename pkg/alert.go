@@ -59,13 +59,26 @@ func (s *Server) HandleAlert(w http.ResponseWriter, req *http.Request) {
 }
 
 func (s *Server) sendAlert(data template.Data) error {
+	// check for mode
+	if s.config.Mode == "" {
+		return fmt.Errorf("Mode is not set")
+	}
+
 	commLabels := strings.Join(data.CommonLabels.Values(), "|")
 	for _, alert := range data.Alerts {
 		metricAlertProcessed.Inc()
-		severity := strings.ToUpper(getValue(alert.Labels, "severity"))
+		severity := strings.ToUpper(getAlertValue(alert.Labels, "severity"))
 		switch severity {
 		case "CRITICAL", "WARNING":
-			msg, err := s.sysLogMsg(alert, commLabels)
+			var msg []byte
+			var err error
+			// parse and build message for custom mode
+			if strings.ToLower(s.config.Mode) == "custom" {
+				msg, err = s.customMsg(alert)
+			} else {
+				// build message for default modes
+				msg, err = s.sysLogMsg(alert, commLabels)
+			}
 			if err != nil {
 				metricAlertSentError.Inc()
 				return err
@@ -77,7 +90,7 @@ func (s *Server) sendAlert(data template.Data) error {
 			}
 
 			metricAlertSent.Inc()
-			glog.V(3).Infof("Send alert: [%s] %s\n", getValue(alert.Labels, "severity"), msg)
+			glog.V(3).Infof("Send alert: [%s] %s\n", getAlertValue(alert.Labels, "severity"), msg)
 		}
 	}
 	return nil

@@ -11,14 +11,12 @@ import (
 
 // ServerCfg is the config options used by Server
 type ServerCfg struct {
-	ListenAddr  string
-	SyslogAddr  string
-	Network     string
-	Timeout     int
-	Mode        string
-	Hostname    string
-	Labels      []string
-	Annotations []string
+	ListenAddr string
+	SyslogAddr string
+	Network    string
+	Timeout    int
+	Hostname   string
+	Config     *config
 }
 
 // Server is a webhook server to handle messages
@@ -26,10 +24,8 @@ type Server struct {
 	httpServer *http.Server
 	sysLog     *syslog.Writer
 
-	mode        string
-	hostname    string
-	labels      []string
-	annotations []string
+	hostname string
+	config   *config
 }
 
 // New create a Server
@@ -55,10 +51,8 @@ func New(cfg *ServerCfg) (*Server, error) {
 			ReadTimeout:  timeoutSec,
 			WriteTimeout: timeoutSec,
 		},
-		sysLog:      syslogWriter,
-		mode:        cfg.Mode,
-		labels:      cfg.Labels,
-		annotations: cfg.Annotations,
+		sysLog: syslogWriter,
+		config: cfg.Config,
 	}, nil
 }
 
