@@ -6,7 +6,13 @@ GOENV   := GO111MODULE=on CGO_ENABLED=0 GOOS=$(GOOS) GOARCH=$(GOARCH)
 GO      := $(GOENV) go
 GOBUILD := $(GO) build
 
+COMMIT    := $(shell git describe --no-match --always --dirty)
+BUILDTIME := $(shell date '+%Y-%m-%d %T %z')
+
+PKG := github.com/AstroProfundis/alertmanager-syslog
 LDFLAGS := -w -s
+LDFLAGS += -X "$(PKG)/pkg/version.GitHash=$(COMMIT)"
+LDFLAGS += -X "$(PKG)/pkg/version.BuildTime=$(BUILDTIME)"
 
 default: all
 
