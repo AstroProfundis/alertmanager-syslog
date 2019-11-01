@@ -4,6 +4,47 @@
 # This only affect the content in MSG part of a syslog message. The default is 'json'.
 mode: custom
 
+# Set the priority of syslog message, it is a combination of the syslog facility and severity.
+# The default value of severity is LOG_CRIT, and default value of facility is LOG_USER
+# Avaiable values of severity are:
+#  From /usr/include/sys/syslog.h.
+#  These are the same on Linux, BSD, and OS X.
+#    EMERG
+#    ALERT
+#    CRIT
+#    ERR
+#    WARNING
+#    NOTICE
+#    INFO
+#    DEBUG
+severity: CRIT
+
+# Available values of facility are:
+#  From /usr/include/sys/syslog.h.
+#  These are the same up to LOG_FTP on Linux, BSD, and OS X.
+#    KERN
+#    USER
+#    MAIL
+#    DAEMON
+#    AUTH
+#    SYSLOG
+#    LPR
+#    NEWS
+#    UUCP
+#    CRON
+#    AUTHPRIV
+#    FTP
+#
+#    LOCAL0
+#    LOCAL1
+#    LOCAL2
+#    LOCAL3
+#    LOCAL4
+#    LOCAL5
+#    LOCAL6
+#    LOCAL7
+facility: USER
+
 # Add labels to be included in the message send to syslog
 # Note that "alertname", "severity", "staus" and "time" are always included
 labels:

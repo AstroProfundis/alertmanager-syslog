@@ -32,9 +32,20 @@ type Server struct {
 func New(cfg *ServerCfg) (*Server, error) {
 	timeoutSec := time.Second * time.Duration(cfg.Timeout)
 
+	syslogSeverity, err := Priority(cfg.Config.Severity)
+	if err != nil {
+		glog.Warning("Error parsing severity from config, using LOG_CRIT as severity for syslog")
+		syslogSeverity = syslog.LOG_CRIT
+	}
+	syslogFacility, err := Priority(cfg.Config.Facility)
+	if err != nil {
+		glog.Warning("Error parsing facility from config, using LOG_USER as severity for syslog")
+		syslogFacility = syslog.LOG_USER
+	}
+
 	syslogWriter, err := syslog.Dial(cfg.Network,
 		cfg.SyslogAddr,
-		syslog.LOG_CRIT|syslog.LOG_USER,
+		syslogSeverity|syslogFacility,
 		"alertmanager-syslog")
 	if err != nil {
 		return nil, err

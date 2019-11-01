@@ -20,6 +20,8 @@ type custom struct {
 
 type config struct {
 	Mode        string   `yaml:"mode"`
+	Severity    string   `yaml:"severity"`
+	Facility    string   `yaml:"facility"`
 	Labels      []string `yaml:"labels"`
 	Annotations []string `yaml:"annotations"`
 	Custom      custom   `yaml:"custom"`
