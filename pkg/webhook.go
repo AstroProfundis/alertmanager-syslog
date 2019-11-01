@@ -14,6 +14,7 @@ type ServerCfg struct {
 	ListenAddr string
 	SyslogAddr string
 	Network    string
+	Tag        string
 	Timeout    int
 	Hostname   string
 	Config     *config
@@ -32,6 +33,8 @@ type Server struct {
 func New(cfg *ServerCfg) (*Server, error) {
 	timeoutSec := time.Second * time.Duration(cfg.Timeout)
 
+	glog.V(3).Infof("Read priority setting from config: %s, %s",
+		cfg.Config.Severity, cfg.Config.Facility)
 	syslogSeverity, err := Priority(cfg.Config.Severity)
 	if err != nil {
 		glog.Warning("Error parsing severity from config, using LOG_CRIT as severity for syslog")
@@ -42,11 +45,12 @@ func New(cfg *ServerCfg) (*Server, error) {
 		glog.Warning("Error parsing facility from config, using LOG_USER as severity for syslog")
 		syslogFacility = syslog.LOG_USER
 	}
+	glog.V(3).Infof("Using priority %d", syslogSeverity|syslogFacility)
 
 	syslogWriter, err := syslog.Dial(cfg.Network,
 		cfg.SyslogAddr,
 		syslogSeverity|syslogFacility,
-		"alertmanager-syslog")
+		cfg.Tag)
 	if err != nil {
 		return nil, err
 	}
@@ -54,6 +58,8 @@ func New(cfg *ServerCfg) (*Server, error) {
 	if cfg.Hostname != "" {
 		syslogWriter.SetHostname(cfg.Hostname)
 	}
+	glog.V(3).Infof("Connected to syslog server %s://%s",
+		cfg.Network, cfg.SyslogAddr)
 
 	glog.Infof("Listening on %s, timeout is %v\n", cfg.ListenAddr, timeoutSec)
 	return &Server{
