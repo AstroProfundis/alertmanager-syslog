@@ -7,15 +7,29 @@ import (
 )
 
 type section struct {
-	Type  string `yaml:"type"`
-	Value string `yaml:"value,omitempty"`
-	Key   string `yaml:"key,omitempty"`
+	Type    string `yaml:"type"`
+	Value   string `yaml:"value,omitempty"`
+	Key     string `yaml:"key,omitempty"`
+	Numeric bool   `yaml:"numeric,omitempty"`
+}
+
+type kvMap struct {
+	Name  string `yaml:"name"`
+	Value int    `yaml:"value"`
+}
+
+type severities struct {
+	IncludeResolved bool    `yaml:"includeResolved"`
+	Key             string  `yaml:"key"`
+	Mode            string  `yaml:"mode"`
+	Levels          []kvMap `yaml:"levels"`
 }
 
 type custom struct {
-	Enabled   bool      `yaml:"enabled"`
-	Delimiter string    `yaml:"delimiter"`
-	Sections  []section `yaml:"sections"`
+	Enabled    bool       `yaml:"enabled"`
+	Delimiter  string     `yaml:"delimiter"`
+	Severities severities `yaml:"severities"`
+	Sections   []section  `yaml:"sections"`
 }
 
 type config struct {

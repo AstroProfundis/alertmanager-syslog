@@ -67,17 +67,42 @@ custom:
   # long, but keep in mind to choose characters that won't appear in alert itself.
   delimiter: "||"
 
+  # severityes is the custom sverity definitions of alert levels, the severity section should be write
+  # to labels of alerts
+  severities:
+    # Wheather parse resolved status of the alert as an extra severity, default is false, this might be
+    # useful if you want to treat resolved as a special severity
+    includeResolved: false
+    # The key name of severity section in alert's labels
+    key: "severity"
+    # Wheather output severity as the original format or a digit defined following
+    # Accept values are: "number", or "string", default is "string"
+    mode: number
+    # levels defines a map from values of severity labels to digits, it is ignored if mode is "string"
+    # if match fails, the value will be set to -1
+    levels:
+    - name: "critical"
+      value: 4
+    - name: "warning"
+      value: 2
+    - name: "notice"
+      value: 1
+
   # sections are the custom defined values in the message, they are ordered the same as in config file
   # a section has these items:
   #   - type: the type of this section, could be either "const", "label" or "annontation", where:
   #         * const is a constitute value
   #         * label is a value from one of the alert's labels
   #         * annontation is a value from one of the alert's annotations
+  #         * time: the time of alert occurrence, in UNIX timestamp format
+  #         * status: the status of the alert, e.g., firing and resolved
+  #         * severity: the severity pared with severities configuration
   #   - value: the constitute value to be used, it is ignored if the type is not "const", if you want
   #         keep the section with empty value, use " " (whitespace) for the value.
   #   - key: name of the key for label or annotation, it is ignored if the type is "const"
-  #   - time: the time of alert occurrence, in UNIX timestamp format
-  sections:
+  #   - numeric: if set to true, the status will show as numeric in messages, default is false. it is
+  #         ignored if the type is not "status"
+    sections:
     - type: const
       value: "AlertManager"
     - type: const

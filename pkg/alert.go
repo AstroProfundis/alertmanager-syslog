@@ -67,31 +67,28 @@ func (s *Server) sendAlert(data template.Data) error {
 	commLabels := strings.Join(data.CommonLabels.Values(), "|")
 	for _, alert := range data.Alerts {
 		metricAlertProcessed.Inc()
-		severity := strings.ToUpper(getAlertValue(alert.Labels, "severity"))
-		switch severity {
-		case "CRITICAL", "WARNING":
-			var msg []byte
-			var err error
-			// parse and build message for custom mode
-			if strings.ToLower(s.config.Mode) == "custom" {
-				msg, err = s.customMsg(alert)
-			} else {
-				// build message for default modes
-				msg, err = s.sysLogMsg(alert, commLabels)
-			}
-			if err != nil {
-				metricAlertSentError.Inc()
-				return err
-			}
 
-			if _, err = s.sysLog.Write(msg); err != nil {
-				metricAlertSentError.Inc()
-				return err
-			}
-
-			metricAlertSent.Inc()
-			glog.V(3).Infof("Send alert: [%s] %s\n", getAlertValue(alert.Labels, "severity"), msg)
+		var msg []byte
+		var err error
+		// parse and build message for custom mode
+		if strings.ToLower(s.config.Mode) == "custom" {
+			msg, err = s.customMsg(alert)
+		} else {
+			// build message for default modes
+			msg, err = s.sysLogMsg(alert, commLabels)
 		}
+		if err != nil {
+			metricAlertSentError.Inc()
+			return err
+		}
+
+		if _, err = s.sysLog.Write(msg); err != nil {
+			metricAlertSentError.Inc()
+			return err
+		}
+
+		metricAlertSent.Inc()
+		glog.V(3).Infof("Send alert: [%s] %s\n", getAlertValue(alert.Labels, "severity"), msg)
 	}
 	return nil
 }

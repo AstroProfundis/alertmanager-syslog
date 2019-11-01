@@ -61,6 +61,8 @@ func (s *Server) sysLogMsg(alert template.Alert, commLabels string) ([]byte, err
 }
 
 func (s *Server) customMsg(alert template.Alert) ([]byte, error) {
+	severity := strings.ToUpper(getAlertValue(alert.Labels,
+		s.config.Custom.Severities.Key))
 	valueList := make([]string, 0)
 	for _, sect := range s.config.Custom.Sections {
 		switch strings.ToLower(sect.Type) {
@@ -74,6 +76,13 @@ func (s *Server) customMsg(alert template.Alert) ([]byte, error) {
 			valueList = append(valueList, strconv.FormatInt(alert.StartsAt.Unix(), 10))
 		case "status":
 			valueList = append(valueList, alert.Status)
+		case "severity":
+			// treat resolved status as a special severity
+			if s.config.Custom.Severities.IncludeResolved &&
+				alert.Status == "resolved" {
+				severity = alert.Status
+			}
+			valueList = append(valueList, parseSeverity(severity, &s.config.Custom.Severities))
 		default:
 			return nil, fmt.Errorf("Unknown section type")
 		}
@@ -103,6 +112,19 @@ func formatPlain(kv map[string]string) []byte {
 		fmt.Fprintf(b, "%s=%v ", k, kv[k])
 	}
 	return b.Bytes()
+}
+
+func parseSeverity(s string, cfg *severities) string {
+	if cfg.Mode != "number" {
+		return s
+	}
+
+	for _, lv := range cfg.Levels {
+		if strings.ToUpper(s) == strings.ToUpper(lv.Name) {
+			return strconv.Itoa(lv.Value)
+		}
+	}
+	return "-1"
 }
 
 func Priority(s string) (syslog.Priority, error) {
