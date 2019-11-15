@@ -9,7 +9,7 @@ var (
 	// VerMajor is the major version
 	VerMajor = 0
 	// VerMinor is the monor version
-	VerMinor = 0
+	VerMinor = 1
 	// VerPatch is the patch version
 	VerPatch = 0
 	// BuildTime is the time when binary is built
