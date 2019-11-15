@@ -34,12 +34,19 @@ User defined mode (`custom`) can support custom defined format for messages.
 All values defined in `custom.sections` are joint with `custom.delimiter` as delimiter, and the order of sections in the config file is kept.
 
 `custom.sections` defines a list of sections with items:
-  - `type`: the type of this section, could be one of "const", "label", "annontation", "time" or "status", where:
+  - join: wheather join multiple columns to one string, if set to "true", columns are joint by the delimiter to one string, default is false
+  - demiliter: the string used to join columns in this section, ignored if "join" is not "true"
+  - columns: the actual data columns in alerts, it is a list of column, if "join" is not "true", only the first column in the list is used for this section
+
+`custom.sections.columns` is a list of `colums`s, a `column` contains these items:
+  - `type`: the type of this section, could be one of "const", "label", "annotation", "time" or "status", where:
       * const is a constitute string set by `value`
       * label is a value from one of the alert's labels
-      * annontation is a value from one of the alert's annotations
+      * annotation is a value from one of the alert's annotations
       * time is the alert start time in UNIX timestamp format (seconds since 1970-01-01 00:00)
+      * instance: the Prometheus' instance label, can optionally strip port number from it
       * status is the status of the alert (e.g., firing or resolved)
+      * severity: the severity pared with severities configuration
   - `value`: the constitute string to be used, it is ignored if the type is not "const", if you want to
       keep the section with empty value, use " " (whitespace) for the value.
   - `key`: name of the key for label or annotation, it is ignored if the type is neither "label" nor "annotation"
