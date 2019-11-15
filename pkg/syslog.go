@@ -83,7 +83,11 @@ func (s *Server) customMsg(alert template.Alert) ([]byte, error) {
 			case "annotation":
 				colValues = append(colValues, getAlertValue(alert.Annotations, col.Key))
 			case "time":
-				colValues = append(colValues, strconv.FormatInt(alert.StartsAt.Unix(), 10))
+				if alert.Status == "resolved" {
+					colValues = append(colValues, strconv.FormatInt(alert.EndsAt.Unix(), 10))
+				} else {
+					colValues = append(colValues, strconv.FormatInt(alert.StartsAt.Unix(), 10))
+				}
 			case "instance":
 				instance := getAlertValue(alert.Labels, "instance")
 				if col.StripPort {
