@@ -99,7 +99,7 @@ func (s *Server) customMsg(alert template.Alert) ([]byte, error) {
 			case "instance":
 				instance := getAlertValue(alert.Labels, "instance")
 				if col.StripPort {
-					instance = strings.Fields(":")[0]
+					instance = strings.Split(instance, ":")[0]
 				}
 				colValues = append(colValues, instance)
 			case "status":
@@ -130,7 +130,7 @@ func (s *Server) customMsg(alert template.Alert) ([]byte, error) {
 
 		// replace white spaces if needed
 		if s.config.Custom.ReplaceWhitespace != "" {
-			columnString = strings.ReplaceAll(columnString, " ", s.config.Custom.ReplaceWhitespace)
+			columnString = strings.Join(strings.Fields(columnString), s.config.Custom.ReplaceWhitespace)
 		}
 		valueList = append(valueList, columnString)
 	}
