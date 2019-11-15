@@ -65,27 +65,62 @@ func (s *Server) customMsg(alert template.Alert) ([]byte, error) {
 		s.config.Custom.Severities.Key))
 	valueList := make([]string, 0)
 	for _, sect := range s.config.Custom.Sections {
-		switch strings.ToLower(sect.Type) {
-		case "const":
-			valueList = append(valueList, sect.Value)
-		case "label":
-			valueList = append(valueList, getAlertValue(alert.Labels, sect.Key))
-		case "annotation":
-			valueList = append(valueList, getAlertValue(alert.Annotations, sect.Key))
-		case "time":
-			valueList = append(valueList, strconv.FormatInt(alert.StartsAt.Unix(), 10))
-		case "status":
-			valueList = append(valueList, alert.Status)
-		case "severity":
-			// treat resolved status as a special severity
-			if s.config.Custom.Severities.IncludeResolved &&
-				alert.Status == "resolved" {
-				severity = alert.Status
-			}
-			valueList = append(valueList, parseSeverity(severity, &s.config.Custom.Severities))
-		default:
-			return nil, fmt.Errorf("Unknown section type")
+		var columns []column
+		if sect.Join {
+			columns = sect.Columns
+		} else {
+			columns = sect.Columns[1:1:1] // only get the first column
 		}
+
+		// parse columns
+		colValues := make([]string, 0)
+		for _, col := range columns {
+			switch strings.ToLower(col.Type) {
+			case "const":
+				colValues = append(colValues, col.Value)
+			case "label":
+				colValues = append(colValues, getAlertValue(alert.Labels, col.Key))
+			case "annotation":
+				colValues = append(colValues, getAlertValue(alert.Annotations, col.Key))
+			case "time":
+				colValues = append(colValues, strconv.FormatInt(alert.StartsAt.Unix(), 10))
+			case "instance":
+				instance := getAlertValue(alert.Labels, "instance")
+				if col.StripPort {
+					instance = strings.Fields(":")[0]
+				}
+				colValues = append(colValues, instance)
+			case "status":
+				colValues = append(colValues, alert.Status)
+			case "severity":
+				// treat resolved status as a special severity
+				if s.config.Custom.Severities.IncludeResolved &&
+					alert.Status == "resolved" {
+					severity = alert.Status
+				}
+				colValues = append(colValues, parseSeverity(severity, &s.config.Custom.Severities))
+			default:
+				return nil, fmt.Errorf("Unknown section type")
+			}
+		}
+
+		// join columns if needed
+		var columnString string
+		if sect.Join {
+			delimiter := "_"
+			if sect.Delimiter != "" {
+				delimiter = sect.Delimiter
+			}
+			columnString = strings.Join(colValues, delimiter)
+		} else {
+			columnString = colValues[0]
+		}
+
+		// replace white spaces if needed
+		if s.config.Custom.ReplaceWhitespace != "" {
+			columnString = strings.ReplaceAll(columnString, " ", s.config.Custom.ReplaceWhitespace)
+		}
+		valueList = append(valueList, columnString)
 	}
 
 	return []byte(strings.Join(valueList, s.config.Custom.Delimiter)), nil
@@ -127,6 +162,7 @@ func parseSeverity(s string, cfg *severities) string {
 	return "-1"
 }
 
+// Priority converts priority settings in config to syslog.Priority
 func Priority(s string) (syslog.Priority, error) {
 	switch strings.ToUpper(s) {
 	// severity

@@ -17,7 +17,7 @@ type ServerCfg struct {
 	Tag        string
 	Timeout    int
 	Hostname   string
-	Config     *config
+	Config     *Config
 }
 
 // Server is a webhook server to handle messages
@@ -26,7 +26,7 @@ type Server struct {
 	sysLog     *syslog.Writer
 
 	hostname string
-	config   *config
+	config   *Config
 }
 
 // New create a Server

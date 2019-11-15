@@ -66,6 +66,10 @@ custom:
   # delimiter is the string used to separate different sections, it can be of one or more characters
   # long, but keep in mind to choose characters that won't appear in alert itself.
   delimiter: "||"
+  
+  # replaceWhitespace is the string used to replace all whitespaces in content, if left empty, the
+  # whitespaces are kept unchanged.
+  replaceWhitespace: "_"
 
   # severityes is the custom sverity definitions of alert levels, the severity section should be write
   # to labels of alerts
@@ -73,9 +77,9 @@ custom:
     # Wheather parse resolved status of the alert as an extra severity, default is false, this might be
     # useful if you want to treat resolved as a special severity
     includeResolved: false
-    # The key name of severity section in alert's labels
+    # The key name of severity section in alert's labels, e.g., "level"
     key: "severity"
-    # Wheather output severity as the original format or a digit defined following
+    # Wheather output severity as the original format or a digit defined by following rules
     # Accept values are: "number", or "string", default is "string"
     mode: number
     # levels defines a map from values of severity labels to digits, it is ignored if mode is "string"
@@ -95,6 +99,7 @@ custom:
   #         * label is a value from one of the alert's labels
   #         * annontation is a value from one of the alert's annotations
   #         * time: the time of alert occurrence, in UNIX timestamp format
+  #         * instance: the Prometheus' instance label, can optionally stip port number from it
   #         * status: the status of the alert, e.g., firing and resolved
   #         * severity: the severity pared with severities configuration
   #   - value: the constitute value to be used, it is ignored if the type is not "const", if you want
@@ -103,20 +108,43 @@ custom:
   #   - numeric: if set to true, the status will show as numeric in messages, default is false. it is
   #         ignored if the type is not "status"
     sections:
-    - type: const
-      value: "AlertManager"
-    - type: const
-      value: " "
-    - type: label
-      key: "instance"
-    - type: label
-      key: "alertname"
-    - type: label
-      key: "service"
-    - type: annotation
-      key: "instance"
-    - type: label
-      key: "severity"
-    - type: annotation
-      key: "summary"
-    - type: time
+    - join: false
+      columns:
+      - type: const
+        value: "AlertManager"
+    - join: false
+      columns:
+      - type: const
+        value: " "
+    # if join is true, the columns are joint with the "delimiter" into one string, otherwise only the
+    # first item in columns is used
+    - join: true
+      delimiter: "-"
+      columns:
+      - type: label
+        key: "env"
+      - type: instance
+        stripPort: true
+    - join: false
+      columns:
+      - type: label
+        key: "alertname"
+    - join: false
+      columns:
+      - type: label
+        key: "service"
+    - join: false
+      columns:
+      - type: annotation
+        key: "instance"
+    - join: false
+      columns:
+      - type: label
+        key: "severity"
+    - join: false
+      columns:
+      - type: annotation
+        key: "summary"
+    - join: false
+      columns:
+      - type: time
