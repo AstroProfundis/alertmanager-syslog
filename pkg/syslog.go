@@ -61,15 +61,23 @@ func (s *Server) sysLogMsg(alert template.Alert, commLabels string) ([]byte, err
 }
 
 func (s *Server) customMsg(alert template.Alert) ([]byte, error) {
-	severity := strings.ToUpper(getAlertValue(alert.Labels,
-		s.config.Custom.Severities.Key))
+	var severity string
+	switch strings.ToLower(s.config.Custom.Severities.Type) {
+	case "label":
+		severity = strings.ToUpper(getAlertValue(alert.Labels,
+			s.config.Custom.Severities.Key))
+	case "annotation":
+		severity = strings.ToUpper(getAlertValue(alert.Annotations,
+			s.config.Custom.Severities.Key))
+	}
+
 	valueList := make([]string, 0)
 	for _, sect := range s.config.Custom.Sections {
 		var columns []column
 		if sect.Join {
 			columns = sect.Columns
 		} else {
-			columns = sect.Columns[1:1:1] // only get the first column
+			columns = sect.Columns[0:1:1] // only get the first column
 		}
 
 		// parse columns

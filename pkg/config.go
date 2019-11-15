@@ -8,10 +8,10 @@ import (
 
 type column struct {
 	Type      string `yaml:"type"`
-	Value     string `yaml:"value, omitempty"`
-	Key       string `yaml:"key, omitempty"`
-	Numeric   bool   `yaml:"numeric, omitempty"`
-	StripPort bool   `yaml:"stripPort, omitempty"`
+	Value     string `yaml:"value,omitempty"`
+	Key       string `yaml:"key,omitempty"`
+	Numeric   bool   `yaml:"numeric,omitempty"`
+	StripPort bool   `yaml:"stripPort,omitempty"`
 }
 
 // UnmarshalYAML implement default values of column
@@ -31,7 +31,7 @@ func (c *column) UnmarshalYAML(unmarshal func(interface{}) error) error {
 
 type section struct {
 	Join      bool     `yaml:"join"`
-	Delimiter string   `yaml:"delimiter, omitempty"`
+	Delimiter string   `yaml:"delimiter,omitempty"`
 	Columns   []column `yaml:"columns"`
 }
 
@@ -56,6 +56,7 @@ type kvMap struct {
 
 type severities struct {
 	IncludeResolved bool    `yaml:"includeResolved"`
+	Type            string  `yaml:"type"`
 	Key             string  `yaml:"key"`
 	Mode            string  `yaml:"mode"`
 	Levels          []kvMap `yaml:"levels"`
@@ -63,7 +64,7 @@ type severities struct {
 
 type custom struct {
 	Delimiter         string     `yaml:"delimiter"`
-	ReplaceWhitespace string     `yaml:"replaceWhitespace, omitempty"`
+	ReplaceWhitespace string     `yaml:"replaceWhitespace,omitempty"`
 	Severities        severities `yaml:"severities"`
 	Sections          []section  `yaml:"sections"`
 }
