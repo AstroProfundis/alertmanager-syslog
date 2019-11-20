@@ -83,37 +83,44 @@ func (s *Server) customMsg(alert template.Alert) ([]byte, error) {
 		// parse columns
 		colValues := make([]string, 0)
 		for _, col := range columns {
+			var colValRaw string
 			switch strings.ToLower(col.Type) {
 			case "const":
-				colValues = append(colValues, col.Value)
+				colValRaw = col.Value
 			case "label":
-				colValues = append(colValues, getAlertValue(alert.Labels, col.Key))
+				colValRaw = getAlertValue(alert.Labels, col.Key)
 			case "annotation":
-				colValues = append(colValues, getAlertValue(alert.Annotations, col.Key))
+				colValRaw = getAlertValue(alert.Annotations, col.Key)
 			case "time":
 				if alert.Status == "resolved" {
-					colValues = append(colValues, strconv.FormatInt(alert.EndsAt.Unix(), 10))
+					colValRaw = strconv.FormatInt(alert.EndsAt.Unix(), 10)
 				} else {
-					colValues = append(colValues, strconv.FormatInt(alert.StartsAt.Unix(), 10))
+					colValRaw = strconv.FormatInt(alert.StartsAt.Unix(), 10)
 				}
 			case "instance":
 				instance := getAlertValue(alert.Labels, "instance")
 				if col.StripPort {
 					instance = strings.Split(instance, ":")[0]
 				}
-				colValues = append(colValues, instance)
+				colValRaw = instance
 			case "status":
-				colValues = append(colValues, alert.Status)
+				colValRaw = alert.Status
 			case "severity":
 				// treat resolved status as a special severity
 				if s.config.Custom.Severities.IncludeResolved &&
 					alert.Status == "resolved" {
 					severity = alert.Status
 				}
-				colValues = append(colValues, parseSeverity(severity, &s.config.Custom.Severities))
+				colValRaw = parseSeverity(severity, &s.config.Custom.Severities)
 			default:
 				return nil, fmt.Errorf("Unknown section type")
 			}
+
+			// replace empty values to user defined placeholder
+			if s.config.Custom.ReplaceEmpty != "" && len(colValRaw) < 1 {
+				colValRaw = s.config.Custom.ReplaceEmpty
+			}
+			colValues = append(colValues, colValRaw)
 		}
 
 		// join columns if needed

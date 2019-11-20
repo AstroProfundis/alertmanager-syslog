@@ -64,6 +64,7 @@ type severities struct {
 
 type custom struct {
 	Delimiter         string     `yaml:"delimiter"`
+	ReplaceEmpty      string     `yaml:"replaceEmpty,omitempty"`
 	ReplaceWhitespace string     `yaml:"replaceWhitespace,omitempty"`
 	Severities        severities `yaml:"severities"`
 	Sections          []section  `yaml:"sections"`
