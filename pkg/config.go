@@ -56,6 +56,7 @@ type kvMap struct {
 
 type severities struct {
 	IncludeResolved bool    `yaml:"includeResolved"`
+	ErrorAsEmpty    bool    `yaml:"errorAsEmpty"`
 	Type            string  `yaml:"type"`
 	Key             string  `yaml:"key"`
 	Mode            string  `yaml:"mode"`

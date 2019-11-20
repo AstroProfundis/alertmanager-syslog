@@ -112,6 +112,10 @@ func (s *Server) customMsg(alert template.Alert) ([]byte, error) {
 					severity = alert.Status
 				}
 				colValRaw = parseSeverity(severity, &s.config.Custom.Severities)
+				// treat severity parsing errors as empty results
+				if s.config.Custom.Severities.ErrorAsEmpty && colValRaw == "-1" {
+					colValRaw = ""
+				}
 			default:
 				return nil, fmt.Errorf("Unknown section type")
 			}

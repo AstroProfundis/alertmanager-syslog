@@ -66,7 +66,11 @@ custom:
   # delimiter is the string used to separate different sections, it can be of one or more characters
   # long, but keep in mind to choose characters that won't appear in alert itself.
   delimiter: "||"
-  
+
+  # replaceEmpty is the string used to replace column values if they are empty, if the parameter is set
+  # to empty, empty values of columns are kept unchanged.
+  replaceEmpty: "N/A"
+
   # replaceWhitespace is the string used to replace all whitespaces in content, if left empty, the
   # whitespaces are kept unchanged.
   replaceWhitespace: "_"
@@ -93,6 +97,8 @@ custom:
       value: 2
     - name: "notice"
       value: 1
+    - name: "N/A"
+      value: 0
 
   # sections are the custom defined values in the message, they are ordered the same as in config file
   # a section has these items:
