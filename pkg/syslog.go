@@ -112,9 +112,10 @@ func (s *Server) customMsg(alert template.Alert) ([]byte, error) {
 					severity = alert.Status
 				}
 				colValRaw = parseSeverity(severity, &s.config.Custom.Severities)
-				// treat severity parsing errors as empty results
-				if s.config.Custom.Severities.ErrorAsEmpty && colValRaw == "-1" {
-					colValRaw = ""
+				// try to parse empty severity again if replace empty is set, as
+				// it might be defined as a special numeric severity
+				if s.config.Custom.ReplaceEmpty != "" && colValRaw == "" {
+					colValRaw = parseSeverity(s.config.Custom.ReplaceEmpty, &s.config.Custom.Severities)
 				}
 			default:
 				return nil, fmt.Errorf("Unknown section type")
@@ -181,6 +182,10 @@ func parseSeverity(s string, cfg *severities) string {
 		if strings.ToUpper(s) == strings.ToUpper(lv.Name) {
 			return strconv.Itoa(lv.Value)
 		}
+	}
+	// treat severity parsing errors as empty results
+	if cfg.ErrorAsEmpty {
+		return ""
 	}
 	return "-1"
 }
