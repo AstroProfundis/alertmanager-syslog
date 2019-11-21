@@ -81,6 +81,11 @@ custom:
     # Wheather parse resolved status of the alert as an extra severity, default is false, this might be
     # useful if you want to treat resolved as a special severity
     includeResolved: false
+    # Wheather treat severity parsing errors as empty results, if set to false, "-1" will be used for severities
+    # that fails to parse (empty or don't match any values in levels section), if set to true, the replaceEmpty
+    # string will be used, and can be translated to another number if set.
+    # default is false
+    errorAsEmpty: true
     # Type of the severity section, allowed values are "label" and "annotation"
     type: "annotation"
     # The key name of severity section in alert's labels, e.g., "level"

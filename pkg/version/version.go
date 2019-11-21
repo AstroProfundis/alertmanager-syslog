@@ -11,7 +11,7 @@ var (
 	// VerMinor is the monor version
 	VerMinor = 1
 	// VerPatch is the patch version
-	VerPatch = 0
+	VerPatch = 1
 	// BuildTime is the time when binary is built
 	BuildTime = "Unknown"
 	// GitHash is the current git commit hash
