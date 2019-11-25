@@ -5,7 +5,6 @@ go 1.13
 require (
 	github.com/RackSec/srslog v0.0.0-20180709174129-a4725f04ec91
 	github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b
-	github.com/heptiolabs/healthcheck v0.0.0-20180807145615-6ff867650f40
 	github.com/prometheus/alertmanager v0.19.0
 	github.com/prometheus/client_golang v1.1.0
 	gopkg.in/yaml.v2 v2.2.2
