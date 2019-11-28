@@ -21,6 +21,7 @@ var (
 	syslogAddr   string
 	network      string
 	tag          string
+	noPid        bool
 	timeout      int
 	host         string
 	printVersion bool
@@ -31,11 +32,12 @@ func init() {
 	flag.StringVar(&listenAddr, "listen", "0.0.0.0:10514", "Address and port of the webhook to receive messages from AlertManager.")
 	flag.StringVar(&syslogAddr, "syslog", "127.0.0.1:514", "Address and port of the Syslog server to send messages.")
 	flag.StringVar(&network, "network", "", "(tcp or udp): send messages to the syslog server using UDP or TCP. If not set, connect to the local syslog server.")
-	flag.StringVar(&tag, "tag", "alertmanager-syslog", "The tag used in syslog messages")
+	flag.StringVar(&tag, "tag", "alertmanager-syslog", "The tag used in syslog messages.")
+	flag.BoolVar(&noPid, "no-pid", false, "Exclude PID of the webhook server from syslog message.")
 	flag.IntVar(&timeout, "timeout", 10, "Timeout when serving and sending requests, in seconds.")
 	flag.StringVar(&host, "host", "", "Hostname or IP address of the log source, if not set, default local hostname will be used.")
-	flag.BoolVar(&printVersion, "V", false, "show version and quit")
-	flag.BoolVar(&printVersion, "version", false, "show version and quit")
+	flag.BoolVar(&printVersion, "V", false, "Show version and quit.")
+	flag.BoolVar(&printVersion, "version", false, "Show version and quit.")
 	flag.Parse()
 }
 
@@ -56,6 +58,7 @@ func main() {
 		SyslogAddr: syslogAddr,
 		Network:    network,
 		Tag:        tag,
+		NoPid:      noPid,
 		Timeout:    timeout,
 		Hostname:   host,
 		Config:     cfg,

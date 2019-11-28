@@ -7,6 +7,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"time"
 
 	syslog "github.com/RackSec/srslog"
 	"github.com/golang/glog"
@@ -256,4 +257,11 @@ func Priority(s string) (syslog.Priority, error) {
 		glog.Error(msg)
 		return 0, fmt.Errorf(msg)
 	}
+}
+
+// RFC3164FormatterNoPid is same with syslog.RFC3164Formatter except PID is removed.
+func RFC3164FormatterNoPid(p syslog.Priority, hostname, tag, content string) string {
+	timestamp := time.Now().Format(time.Stamp)
+	msg := fmt.Sprintf("<%d>%s %s %s: %s", p, timestamp, hostname, tag, content)
+	return msg
 }

@@ -15,6 +15,7 @@ type ServerCfg struct {
 	SyslogAddr string
 	Network    string
 	Tag        string
+	NoPid      bool
 	Timeout    int
 	Hostname   string
 	Config     *Config
@@ -54,7 +55,13 @@ func New(cfg *ServerCfg) (*Server, error) {
 	if err != nil {
 		return nil, err
 	}
-	syslogWriter.SetFormatter(syslog.RFC3164Formatter)
+
+	if cfg.NoPid {
+		syslogWriter.SetFormatter(RFC3164FormatterNoPid)
+	} else {
+		syslogWriter.SetFormatter(syslog.RFC3164Formatter)
+	}
+
 	if cfg.Hostname != "" {
 		syslogWriter.SetHostname(cfg.Hostname)
 	}
