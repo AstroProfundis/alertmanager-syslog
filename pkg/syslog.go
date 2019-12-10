@@ -132,11 +132,7 @@ func (s *Server) customMsg(alert template.Alert) ([]byte, error) {
 		// join columns if needed
 		var columnString string
 		if sect.Join {
-			delimiter := "_"
-			if sect.Delimiter != "" {
-				delimiter = sect.Delimiter
-			}
-			columnString = strings.Join(colValues, delimiter)
+			columnString = strings.Join(colValues, sect.Delimiter)
 		} else {
 			columnString = colValues[0]
 		}
