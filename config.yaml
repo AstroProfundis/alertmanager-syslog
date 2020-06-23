@@ -53,7 +53,8 @@ labels:
 
 # Add annotations to be included in the message send to syslog
 # NOTE: If an annotation has the same name as a label, it will overwrite the value of that label
-# e.g., in this configuration sample, only "instance" from annotations will be add to the message
+# e.g., in this configuration sample, only "instance" from annotations will be add to the message and
+# the ones from labels are overwritten and dropped
 annotations:
   - value
   - summary
@@ -61,10 +62,10 @@ annotations:
   - instance
 
 # Define a customized format to build alerts to syslog messages
-# If custom format is enabled, both 'labels' and 'annotation' are ignored.
+# If custom format is enabled, both 'labels' and 'annotations' are ignored.
 custom:
-  # delimiter is the string used to separate different sections, it can be of one or more characters
-  # long, but keep in mind to choose characters that won't appear in alert itself.
+  # delimiter is the string used to separate different sections, it can be of one or more characters,
+  # but keep in mind to choose characters that won't appear in alert itself.
   delimiter: "||"
 
   # replaceEmpty is the string used to replace column values if they are empty, if the parameter is set
@@ -75,7 +76,7 @@ custom:
   # whitespaces are kept unchanged.
   replaceWhitespace: "_"
 
-  # severityes is the custom sverity definitions of alert levels, the severity section should be write
+  # severities are the custom sverity definitions of alert levels, the severity section should be write
   # to labels of alerts
   severities:
     # Wheather parse resolved status of the alert as an extra severity, default is false, this might be
@@ -88,7 +89,7 @@ custom:
     errorAsEmpty: true
     # Type of the severity section, allowed values are "label" and "annotation"
     type: "annotation"
-    # The key name of severity section in alert's labels, e.g., "level"
+    # The key name of severity section in alert's labels or annotations, e.g., "level"
     key: "severity"
     # Wheather output severity as the original format or a digit defined by following rules
     # Accept values are: "number", or "string", default is "string"

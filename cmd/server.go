@@ -42,10 +42,12 @@ func init() {
 }
 
 func main() {
+	ver := version.NewVersion()
 	if printVersion {
-		fmt.Println(version.NewVersion())
+		fmt.Println(ver)
 		os.Exit(0)
 	}
+	glog.Infof("Start alertmanager-syslog %s as %s", ver, tag)
 
 	cfg, err := webhook.LoadConfig(configFile)
 	if err != nil {

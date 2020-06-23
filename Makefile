@@ -1,18 +1,17 @@
-GOVER := $(shell go version)
+.PHONY: check server
+.DEFAULT_GOAL := default
 
 GOOS    := $(if $(GOOS),$(GOOS),linux)
 GOARCH  := $(if $(GOARCH),$(GOARCH),amd64)
 GOENV   := GO111MODULE=on CGO_ENABLED=0 GOOS=$(GOOS) GOARCH=$(GOARCH)
 GO      := $(GOENV) go
-GOBUILD := $(GO) build
+GOBUILD := $(GO) build $(BUILD_FLAG)
 
 COMMIT    := $(shell git describe --no-match --always --dirty)
-BUILDTIME := $(shell date '+%Y-%m-%d %T %z')
 
 PKG := github.com/AstroProfundis/alertmanager-syslog
 LDFLAGS := -w -s
 LDFLAGS += -X "$(PKG)/pkg/version.GitHash=$(COMMIT)"
-LDFLAGS += -X "$(PKG)/pkg/version.BuildTime=$(BUILDTIME)"
 
 default: all
 
@@ -32,4 +31,3 @@ check: lint vet
 clean:
 	@rm -rf bin
 
-.PHONY: server

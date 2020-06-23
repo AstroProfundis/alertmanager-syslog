@@ -11,9 +11,7 @@ var (
 	// VerMinor is the monor version
 	VerMinor = 1
 	// VerPatch is the patch version
-	VerPatch = 1
-	// BuildTime is the time when binary is built
-	BuildTime = "Unknown"
+	VerPatch = 2
 	// GitHash is the current git commit hash
 	GitHash = "Unknown"
 )
@@ -23,7 +21,6 @@ type Version struct {
 	major     int
 	minor     int
 	patch     int
-	BuildTime string
 	GitHash   string
 	GoVersion string
 }
@@ -34,7 +31,6 @@ func NewVersion() *Version {
 		major:     VerMajor,
 		minor:     VerMinor,
 		patch:     VerPatch,
-		BuildTime: BuildTime,
 		GitHash:   GitHash,
 		GoVersion: runtime.Version(),
 	}
@@ -47,5 +43,5 @@ func (v *Version) SemVer() string {
 
 // String converts Version to a string
 func (v *Version) String() string {
-	return fmt.Sprintf("%s/%s (%s) %s", v.SemVer(), v.GitHash, v.BuildTime, v.GoVersion)
+	return fmt.Sprintf("%s/%s (%s)", v.SemVer(), v.GitHash, v.GoVersion)
 }
