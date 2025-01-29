@@ -1,4 +1,4 @@
-FROM golang:1.14-alpine AS builder
+FROM golang:alpine AS builder
 
 COPY ./ /build
 WORKDIR /build
@@ -8,7 +8,7 @@ RUN apk update && \
     go get -u golang.org/x/lint/golint && \
     BUILD_FLAG="-trimpath" make
 
-FROM alpine:3.12
+FROM alpine:latest
 
 COPY --from=builder /build/bin/alertmanager-syslog /alertmanager-syslog
 

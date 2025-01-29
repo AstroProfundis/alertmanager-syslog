@@ -5,7 +5,7 @@
 
 This is an AlertManager receiver that uses the general webhook receiver to send alert notifications to a Syslog server.
 
-NOTE: This repo is still under development and not recommended for production usage.
+NOTE: This repo is in maintenance status and is not actively maintained for new features, but it should still be functional for existing users for development and production usage.
 
 # Usage
 ## Run webhook server

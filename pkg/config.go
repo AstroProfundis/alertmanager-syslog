@@ -1,7 +1,7 @@
 package webhook
 
 import (
-	"io/ioutil"
+	"os"
 
 	"gopkg.in/yaml.v2"
 )
@@ -87,7 +87,7 @@ func LoadConfig(filename string) (*Config, error) {
 		return &Config{}, nil
 	}
 
-	raw, err := ioutil.ReadFile(filename)
+	raw, err := os.ReadFile(filename)
 	if err != nil {
 		return nil, err
 	}

@@ -1,6 +1,6 @@
 module github.com/AstroProfundis/alertmanager-syslog
 
-go 1.14
+go 1.16
 
 require (
 	github.com/RackSec/srslog v0.0.0-20180709174129-a4725f04ec91
