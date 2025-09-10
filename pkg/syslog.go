@@ -2,7 +2,7 @@ package webhook
 
 import (
 	"bytes"
-	"encoding/json"
+	"errors"
 	"fmt"
 	"sort"
 	"strconv"
@@ -11,6 +11,7 @@ import (
 
 	syslog "github.com/RackSec/srslog"
 	"github.com/golang/glog"
+	json "github.com/json-iterator/go"
 	"github.com/prometheus/alertmanager/template"
 )
 
@@ -119,7 +120,7 @@ func (s *Server) customMsg(alert template.Alert) ([]byte, error) {
 					colValRaw = parseSeverity(s.config.Custom.ReplaceEmpty, &s.config.Custom.Severities)
 				}
 			default:
-				return nil, fmt.Errorf("Unknown section type")
+				return nil, fmt.Errorf("unknown section type")
 			}
 
 			// replace empty values to user defined placeholder
@@ -176,7 +177,7 @@ func parseSeverity(s string, cfg *severities) string {
 	}
 
 	for _, lv := range cfg.Levels {
-		if strings.ToUpper(s) == strings.ToUpper(lv.Name) {
+		if strings.EqualFold(s, lv.Name) {
 			return strconv.Itoa(lv.Value)
 		}
 	}
@@ -249,9 +250,9 @@ func Priority(s string) (syslog.Priority, error) {
 	case "LOCAL7":
 		return syslog.LOG_LOCAL7, nil
 	default:
-		msg := fmt.Sprintf("Unknown priority %s", s)
+		msg := fmt.Sprintf("unknown priority %s", s)
 		glog.Error(msg)
-		return 0, fmt.Errorf(msg)
+		return 0, errors.New(msg)
 	}
 }
 

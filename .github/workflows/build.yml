@@ -15,7 +15,7 @@ jobs:
       fail-fast: true
       matrix:
         go:
-          - "^1.16"
+          - "1.19.13"
           - "stable"
         arch:
           - "amd64"
@@ -30,11 +30,13 @@ jobs:
         go-version: ${{ matrix.go }}
 
     - name: Build
+      env:
+        GOARCH: ${{ matrix.arch }}
       run: |
         go build -v ./...
         make server
 
     - name: Test
       run: |
-        make check
+        make vet
         go test -v ./...

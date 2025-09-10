@@ -1,15 +1,21 @@
 package webhook
 
 import (
-	"fmt"
+	"io"
 	"net/http"
 
 	"github.com/AstroProfundis/alertmanager-syslog/pkg/version"
+	"github.com/golang/glog"
 )
 
 // ShowVersion returns the version of this program
 func (s *Server) ShowVersion(w http.ResponseWriter, req *http.Request) {
-	defer req.Body.Close()
+	defer func() {
+		err := req.Body.Close()
+		if err != nil {
+			glog.Errorf("Error closing request: %v", err)
+		}
+	}()
 
 	metricRequestTotal.Inc()
 
@@ -17,5 +23,7 @@ func (s *Server) ShowVersion(w http.ResponseWriter, req *http.Request) {
 		http.Error(w, "", http.StatusMethodNotAllowed)
 		return
 	}
-	fmt.Fprintf(w, version.NewVersion().String())
+	if _, err := io.WriteString(w, version.NewVersion().String()); err != nil {
+		glog.Errorf("Error sending version response: %v", err)
+	}
 }

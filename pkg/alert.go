@@ -1,12 +1,12 @@
 package webhook
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"strings"
 
 	"github.com/golang/glog"
+	json "github.com/json-iterator/go"
 	"github.com/prometheus/alertmanager/template"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
@@ -37,7 +37,12 @@ var (
 
 // HandleAlert handles webhook for AlertManager
 func (s *Server) HandleAlert(w http.ResponseWriter, req *http.Request) {
-	defer req.Body.Close()
+	defer func() {
+		err := req.Body.Close()
+		if err != nil {
+			glog.Errorf("Error closing request: %v", err)
+		}
+	}()
 
 	metricRequestTotal.Inc()
 
@@ -61,7 +66,7 @@ func (s *Server) HandleAlert(w http.ResponseWriter, req *http.Request) {
 func (s *Server) sendAlert(data template.Data) error {
 	// check for mode
 	if s.config.Mode == "" {
-		return fmt.Errorf("Mode is not set")
+		return fmt.Errorf("mode is not set")
 	}
 
 	commLabels := strings.Join(data.CommonLabels.Values(), "|")

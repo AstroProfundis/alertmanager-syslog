@@ -21,12 +21,12 @@ server:
 	$(GOBUILD) -ldflags '$(LDFLAGS)' -o bin/alertmanager-syslog cmd/*.go
 
 lint:
-	@golint ./...
+	@golangci-lint run
 
 vet:
 	$(GO) vet ./...
 
-check: lint vet
+check: vet lint
 
 clean:
 	@rm -rf bin

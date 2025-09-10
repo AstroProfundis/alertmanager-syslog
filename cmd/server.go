@@ -69,13 +69,21 @@ func main() {
 		glog.Fatalf("Failed to start server: %v", err)
 		os.Exit(1)
 	}
-	defer s.Close()
 
 	http.HandleFunc("/alerts", s.HandleAlert)
 	http.HandleFunc("/version", s.ShowVersion)
 	http.Handle("/metrics", promhttp.Handler())
 
-	go s.ListenAndServe()
+	var wg sync.WaitGroup
+	wg.Add(1)
+
+	go func() {
+		defer wg.Done()
+		if err := s.ListenAndServe(); err != http.ErrServerClosed {
+			s.Close()
+			glog.Fatalf("Error starting HTTP server: %v", err)
+		}
+	}()
 
 	sc := make(chan os.Signal, 1)
 	signal.Notify(sc,
@@ -84,13 +92,12 @@ func main() {
 		syscall.SIGTERM,
 		syscall.SIGQUIT)
 
-	var wg sync.WaitGroup
-	wg.Add(1)
 	go func() {
 		sig := <-sc
 		glog.Infof("Got signal [%v], exiting...\n", sig)
-		wg.Done()
+		s.Close()
 	}()
+
 	wg.Wait()
 	glog.Flush()
 }

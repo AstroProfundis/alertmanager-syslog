@@ -26,13 +26,13 @@ type Server struct {
 	httpServer *http.Server
 	sysLog     *syslog.Writer
 
-	hostname string
-	config   *Config
+	config *Config
 }
 
 // New create a Server
 func New(cfg *ServerCfg) (*Server, error) {
-	timeoutSec := time.Second * time.Duration(cfg.Timeout)
+	// timeout in seconds
+	timeoutLmt := time.Second * time.Duration(cfg.Timeout)
 
 	glog.V(3).Infof("Read priority setting from config: %s, %s",
 		cfg.Config.Severity, cfg.Config.Facility)
@@ -68,12 +68,12 @@ func New(cfg *ServerCfg) (*Server, error) {
 	glog.V(3).Infof("Connected to syslog server %s://%s",
 		cfg.Network, cfg.SyslogAddr)
 
-	glog.Infof("Listening on %s, timeout is %v\n", cfg.ListenAddr, timeoutSec)
+	glog.Infof("Listening on %s, timeout is %v\n", cfg.ListenAddr, timeoutLmt)
 	return &Server{
 		httpServer: &http.Server{
 			Addr:         cfg.ListenAddr,
-			ReadTimeout:  timeoutSec,
-			WriteTimeout: timeoutSec,
+			ReadTimeout:  timeoutLmt,
+			WriteTimeout: timeoutLmt,
 		},
 		sysLog: syslogWriter,
 		config: cfg.Config,
@@ -81,24 +81,22 @@ func New(cfg *ServerCfg) (*Server, error) {
 }
 
 // ListenAndServe starts the server
-func (s *Server) ListenAndServe() {
-	s.httpServer.ListenAndServe()
+func (s *Server) ListenAndServe() error {
+	return s.httpServer.ListenAndServe()
 }
 
 // Close closes the server
 func (s *Server) Close() {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
-	defer func() {
-		cancel()
-	}()
+	defer cancel()
 
 	if err := s.httpServer.Shutdown(ctx); err != nil {
 		glog.Warningf("Failed to shutdown HTTP server, closing anyway.")
-		s.httpServer.Close() // ignore the error
+		_ = s.httpServer.Close() // ignore the error
 	} else {
 		glog.Infof("Finish shuting down HTTP server.")
 	}
 
-	s.sysLog.Close() // ignore the error
+	_ = s.sysLog.Close() // ignore the error
 	glog.Infof("Closed connection to Syslog server.")
 }
