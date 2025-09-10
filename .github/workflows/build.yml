@@ -37,6 +37,8 @@ jobs:
         make server
 
     - name: Test
+      env:
+        GOARCH: ${{ matrix.arch }}
       run: |
         make vet
         go test -v ./...
