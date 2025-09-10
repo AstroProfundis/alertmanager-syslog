@@ -1,6 +1,6 @@
 # AlertManager Syslog Receiver
 
-[![Build Status](https://travis-ci.org/AstroProfundis/alertmanager-syslog.svg?branch=master)](https://travis-ci.org/AstroProfundis/alertmanager-syslog)
+[![Build Status](https://github.com/AstroProfundis/alertmanager-syslog/actions/workflows/build.yml/badge.svg)](https://github.com/AstroProfundis/alertmanager-syslog/actions/workflows/build.yml)
 [![Go Report Card](https://goreportcard.com/badge/github.com/AstroProfundis/alertmanager-syslog)](https://goreportcard.com/report/github.com/AstroProfundis/alertmanager-syslog)
 
 This is an AlertManager receiver that uses the general webhook receiver to send alert notifications to a Syslog server.
